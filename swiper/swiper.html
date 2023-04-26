@@ -1,0 +1,150 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="swiper">
+        <div id="swiper-inner">
+            <img src="./imgs/preview1.jpg" alt="" draggable="false">
+            <img src="./imgs/preview2.jpg" alt="" draggable="false">
+            <img src="./imgs/preview3.jpg" alt="" draggable="false">
+            <img src="./imgs/preview4.jpg" alt="" draggable="false">
+        </div>
+    </div>
+</body>
+<style>
+    :root {
+        --img-width: 400px;
+        --img-height: 200px;
+    }
+    body {
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #swiper {
+        overflow: hidden;
+    }
+    #swiper,#swiper-inner > img {
+        width: var(--img-width);
+        height: var(--img-height);
+        user-select: none;
+    }
+    #swiper-inner {
+        height: var(--img-height);
+        transform: translateX(0);
+        transition: transform 0.3s ease-out;
+    }
+    #swiper-inner > img {
+        float: left;
+        display: block;
+    }
+</style>
+<script>
+    /**
+     * init values
+     * imgs: 图片
+     * inner: 要拖动的 div
+     * widthStr: 获取到的以px结尾的图片宽度
+     * width: 图片宽度
+     * focus: 是否在拖动状态
+     * startX: 开始拖动 inner 前 光标的X轴坐标
+     * elementX: inner 在被拖动前X轴的坐标
+     * min: 图片X轴坐标移动最小大小
+     * max: 图片X轴坐标移动最大大小
+     **/
+    const imgs = document.querySelectorAll("#swiper-inner img")
+    const inner = document.getElementById("swiper-inner")
+    let widthStr = getComputedStyle(document.documentElement).getPropertyValue('--img-width')
+    let width = parseInt(widthStr.substring(0,widthStr.lastIndexOf("px")))
+    let focus = false
+    let startX,elementX,maxX = 0
+    let minX = -((imgs.length-1)*width)
+
+    inner.style.width = imgs.length*width
+
+    // event binding
+    // web
+    document.addEventListener("mousemove", function(event) {
+        // 移动元素
+        move(event.clientX)
+    });
+    document.addEventListener("mouseup", function(event) {
+        // 标记拖动结束
+        focus = false
+        attemptToSwitch(event.clientX)
+    });
+    inner.onmousedown = function(e) {
+        // 标记开始拖动
+        focus = true
+        // 获取光标的X轴坐标（开始拖动前的）
+        startX = e.clientX;
+        // 获取 inner 目前距离 dom 最左边的距离。也就是 inner 元素 X轴的绝对坐标
+        elementX = parseInt(window.getComputedStyle(inner).getPropertyValue("transform").split(",")[4].trim());
+    }
+    // app
+    document.addEventListener("touchmove", function(event) {
+        // 移动元素
+        move(event.touches[0].clientX)
+    });
+    document.addEventListener("touchend", function(event) {
+        // 标记拖动结束
+        focus = false
+        attemptToSwitch(event.changedTouches[0].clientX)
+    });
+    inner.ontouchstart = function(e) {
+        // 标记开始拖动
+        focus = true
+        // 获取光标的X轴坐标（开始拖动前的）
+        startX = e.touches[0].clientX;
+        // 获取 inner 目前距离 dom 最左边的距离。也就是 inner 元素 X轴的绝对坐标
+        elementX = parseInt(window.getComputedStyle(inner).getPropertyValue("transform").split(",")[4].trim());
+    }
+
+    // functions
+    /**
+     * 尝试切换图片
+     * @param distance 移动的距离
+     **/
+    function attemptToSwitch(clientX) {
+        var deltaX = clientX - startX
+        var elementNowX = elementX + deltaX
+        // 拖动指标如果有三张图，那么就会有: 0.5,1,1.5,2 四种情况
+        var dragIndex = Math.abs(Math.floor(elementNowX/(width/2))/2)
+
+        if (String(dragIndex).lastIndexOf(".") == -1) {
+            // 整数 回正
+            elementNowX = -(dragIndex*width)
+        } else {
+            // 小数 回弹
+            elementNowX = -(Math.floor(dragIndex)*width)
+        }
+        // 判断图片是否移动太过了
+        if (elementNowX > maxX) {
+            // 图片右移太过了
+            elementNowX = maxX;
+        }
+        if (elementNowX < minX) {
+            // 图片左移太过了
+            elementNowX = minX;
+        }
+        // 回弹，回正
+        inner.style.transform = "translateX(" + elementNowX + "px)";
+    }
+    /**
+     * 拖动图片
+     **/
+    function move(clientX) {
+        if (focus) {
+            // 获取光标拖动距离: 当前 光标 X轴坐标 - 开始拖动时 光标 X轴坐标
+            var dist = clientX - startX;
+            // 移动元素，移动的距离为: 开始拖动 元素 时 元素 的X轴坐标 + 光标拖动距离
+            inner.style.transform = "translateX(" + (elementX + dist) + "px)";
+        }
+    }
+</script>
+</html>
