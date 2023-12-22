@@ -1,0 +1,64 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="swiper">
+        <div id="swiper-inner">
+            <img src="./imgs/preview1.jpg" alt="" draggable="false">
+            <img src="./imgs/preview2.jpg" alt="" draggable="false">
+            <img src="./imgs/preview3.jpg" alt="" draggable="false">
+            <img src="./imgs/preview4.jpg" alt="" draggable="false">
+        </div>
+    </div>
+</body>
+<style>
+    :root {
+        --img-width: 400px;
+        --img-height: 200px;
+    }
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    #swiper,#swiper-inner img {
+        width: var(--img-width);
+        height: var(--img-height);
+    }
+    #swiper {
+        overflow: hidden;
+    }
+    #swiper-inner {
+        transition: 0.5s ease-in-out;
+        transform: translateX(0);
+    }
+    #swiper-inner img {
+        float: left;
+    }
+</style>
+<script>
+    let imgs = document.querySelectorAll("#swiper-inner img")
+    let inner = document.getElementById("swiper-inner")
+    // 获取 :root 中的结尾为 px 的 --img-width 属性
+    let widthStr = getComputedStyle(document.documentElement).getPropertyValue('--img-width')
+    // 获取图片宽度
+    let width = parseInt(widthStr.substring(0,widthStr.lastIndexOf("px")))
+    let cur = 1
+    
+    document.getElementById("swiper-inner").style.width = width*imgs.length+"px"
+
+    function switchImg() {
+        if (cur >= imgs.length) {
+            cur = 0
+        }
+        // 移动inner实现自动轮播
+        inner.style.transform = "translateX("+(-cur*width)+"px)"
+        cur ++
+    }
+    setInterval(switchImg, 3000)
+</script>
+</html>

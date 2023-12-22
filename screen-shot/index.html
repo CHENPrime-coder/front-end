@@ -1,0 +1,44 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+</head>
+<style>
+.result {
+    border: 1px solid red;
+}
+#area {
+    background-color: beige;
+}
+</style>
+<body>
+    <div id="area">
+        <h1>截图</h1>
+        <ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+        </ul>
+    </div>
+    <button onclick="captureScreenshot()">截图</button>
+    <canvas id="screenshotCanvas" style="display: none;"></canvas>
+
+    <script>
+        function captureScreenshot() {
+            // 使用html2canvas截取整个页面
+            html2canvas(document.getElementById("area")).then(function(canvas) {
+                // 将Canvas内容转换为DataURL
+                var dataURL = canvas.toDataURL('image/png');
+
+                var image = new Image();
+                image.src = dataURL;
+                image.className = "result"
+                document.body.appendChild(image);
+            });
+        }
+    </script>
+</body>
+</html>
